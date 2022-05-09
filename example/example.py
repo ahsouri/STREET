@@ -1,7 +1,7 @@
 from STREET import street
 
-slave_nc_file = '/Users/asouri/Documents/STREET/STREET/example/slave_tropomi_LA.nc'
-master_nc_file = '/Users/asouri/Documents/STREET/STREET/example/master_tropomi_LA.nc'
+slave_nc_file = '/Users/asouri/Documents/Box_Aura_Ozone_study/STREET/STREET/example/slave_tropomi_LA.nc'
+master_nc_file = '/Users/asouri/Documents/Box_Aura_Ozone_study/STREET/STREET/example/master_tropomi_LA.nc'
 
 slave_nc_vars = ["values","lon","lat"]
 

@@ -143,7 +143,7 @@ class street(object):
            plt.xlabel('Length Scale [km]', fontsize=30)
            plt.yticks(size=25)
            plt.xticks(size=25)
-           plt.xlim(0, 500)
+           plt.xlim(0, self.maxlag*100)
            plt.show()
 
         self.length_scale = x_value
