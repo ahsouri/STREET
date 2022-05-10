@@ -15,7 +15,7 @@ setup(name='STREET',
       author='Amir Souri',
       author_email='ahsouri@gmail.com',
       license='MIT',
-      packages=['street-geo'],
+      packages=['STREET'],
       install_requires=[
           'numpy','matplotlib','scipy','netCDF4','scikit-gstat'
       ],
