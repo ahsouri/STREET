@@ -15,7 +15,7 @@ Reference: Souri et al., 2022, Characterization of Errors in Satellite-based HCH
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install STREET.
 
 ```bash
-pip install street-geo
+pip install git+https://github.com/ahsouri/STREET
 ```
 
 ## Usage
