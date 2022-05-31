@@ -4,11 +4,11 @@ import os
 # set the current dir as workplace
 os.getcwd()
 
-# upscaled (slave) and fine (master) data
+# the coarse (slave) and fine (master) data
 slave_nc_file = './example/slave_tropomi_LA.nc'
 master_nc_file = './example/master_tropomi_LA.nc'
 
-# the name of variablese pretaining to z,x,y
+# the name of vars pretaining to z,x,y
 slave_nc_vars = ["values","lon","lat"]
 
 # the master file has the same var
