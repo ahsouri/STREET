@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/490312396.svg)](https://zenodo.org/badge/latestdoi/490312396)
+
 # STREET
 
 SpaTial Representation Error EstimaTor (STREET)
