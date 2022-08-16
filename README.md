@@ -3,7 +3,7 @@
 # STREET
 
 SpaTial Representation Error EstimaTor (STREET)
-Estimate the Spatial Representation Error based on the principle of geostatistics
+estimates the Spatial Representation Error based on the principle of geostatistics
 
 ```bash
 Reference: Souri et al., 2022, Characterization of Errors in Satellite-based HCHO/NO2, 
