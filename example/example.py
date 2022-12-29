@@ -1,4 +1,4 @@
-from STREET import street
+from street import street
 import os
 
 # set the current dir as workplace

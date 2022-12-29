@@ -6,10 +6,17 @@
 #                                Retrieval Uncertainties 
 # Amir Souri (ahsouri@cfa.harvard.edu;ahsouri@gmail.com)
 
+import skgstat as skg
+import numpy as np
+import matplotlib.pyplot as plt
+from netCDF4 import Dataset
+import seaborn as sns
+import os
+
 class street(object):
 
-    def __init__(self,slave_nc_file,slave_nc_vars,master_nc_file,master_nc_vars,semivar_model = 1,
-                 maxlag = 5, n_bins = 100):
+    def __init__(self,slave_nc_file,slave_nc_vars,master_nc_file,master_nc_vars,semivar_model_slave = 1,
+                 semivar_model_master = 1, maxlag = 5, minlag = 0.25, n_bins = 100):
         '''
            Initialize the street object with primary inputs
            ARGS:
@@ -27,7 +34,7 @@ class street(object):
                                   master_nc_vars[2] = Latitude
                                   example: master_nc_vars[0] = "TROPOMI_TNO2"
                                   currently the package doesn't support group-based nc files  
-            semivar_model (int): 1 -> Gaussian
+            semivar_model_slave or master (int): 1 -> Gaussian
                                  2 -> Spherical
                                  3 -> Exponential
                                  4 -> Stable Gauss
@@ -47,8 +54,10 @@ class street(object):
         self.master_lon = self.read_netcdf(master_nc_file,master_nc_vars[1])
         self.master_lat = self.read_netcdf(master_nc_file,master_nc_vars[2])
 
-        self.semivar_model = semivar_model
+        self.semivar_model_slave = semivar_model_slave
+        self.semivar_model_master = semivar_model_master
         self.maxlag = maxlag
+        self.minlag = minlag
         self.n_bins = n_bins
         print("the object is all set for other processes.")
 
@@ -61,8 +70,7 @@ class street(object):
         OUT:
             var (float)
         '''
-        from netCDF4 import Dataset
-        import numpy as np
+
         nc_f = filename
         nc_fid = Dataset(nc_f, 'r')
         var = nc_fid.variables[var][:]
@@ -77,11 +85,8 @@ class street(object):
             plot_pngname (char): the namefile of the plot (slave and master will be appended to it)
             random_selection_n (int): number of random samples from the field
         '''
-        import skgstat as skg
-        import numpy as np
-        import matplotlib.pyplot as plt
 
-        def cal_sem(x,y,z,random_selection_n):
+        def cal_sem(x,y,z,semi_model,random_selection_n):
             # a mini function to cal semivariograms
             # mask bad data
             mask = np.isnan(z)
@@ -103,13 +108,13 @@ class street(object):
             values = z.flatten()
 
             # choosing the semivariogram model
-            if self.semivar_model == 1:
+            if semi_model == 1:
                model = 'gaussian'
-            elif self.semivar_model == 2:
+            elif semi_model== 2:
                model = 'spherical'
-            elif self.semivar_model == 3:
+            elif semi_model == 3:
                model = 'exponential'
-            elif self.semivar_model == 4:
+            elif semi_model == 4:
                model = 'stable'
 
             # running the skg (this can be memory intensive if the field is large)
@@ -129,18 +134,21 @@ class street(object):
 
         print("Building and modeling semivariogram for the slave")
         self.vario_obj_slave,self.fitted_model_slave = cal_sem(self.slave_lon,self.slave_lat,
-                                                               self.slave_field,random_selection_n)
+                                                               self.slave_field,self.semivar_model_slave,
+                                                               random_selection_n)
         print("Building and modeling semivariogram for the master")
         self.vario_obj_master,self.fitted_model_master = cal_sem(self.master_lon,self.master_lat,
-                                                                self.master_field,random_selection_n)
+                                                                self.master_field,self.semivar_model_master,
+                                                                random_selection_n)
 
         if do_plot == True:
+           if (not os.path.exists('plot_output')): os.makedirs('plot_output') 
            if (plot_pngname is not None):
-              plotting(self.vario_obj_slave,  "./plot_output/" + str(plot_pngname) + "_slave.png")
-              plotting(self.vario_obj_master,  "./plot_output/" + str(plot_pngname) + "_master.png")
+              plotting(self.vario_obj_slave,  "plot_output/" + str(plot_pngname) + "_slave.png")
+              plotting(self.vario_obj_master,  "plot_output/" + str(plot_pngname) + "_master.png")
            else:
-              plotting(self.vario_obj_slave,"./plot_output/semivariogram_slave.png")
-              plotting(self.vario_obj_master,"./plot_output/semivariogram_master.png")
+              plotting(self.vario_obj_slave,"plot_output/semivariogram_slave.png")
+              plotting(self.vario_obj_master,"plot_output/semivariogram_master.png")
 
     def error_estimator(self, do_plot = False, length_scale = None, deg2km = 110.0):
         ''' 
@@ -153,12 +161,9 @@ class street(object):
                                   is automatically off
             deg2km (float): degree to km conversion (default = 110 km)
         '''
-        import numpy as np
-        import matplotlib.pyplot as plt  
-        import seaborn as sns
 
         # the range of x for error estimation    
-        x_value = np.arange(0,self.maxlag+0.1,0.1)
+        x_value = np.arange(self.minlag,self.maxlag+0.1,0.02)
 
         # get their gamma values (i.e., variancc)
         var_slave = self.fitted_model_slave(x_value)
@@ -183,7 +188,7 @@ class street(object):
            plt.xlabel('Length Scale [km]', fontsize=30)
            plt.yticks(size=25)
            plt.xticks(size=25)
-           plt.xlim(0, self.maxlag*deg2km)
+           plt.xlim(self.minlag*deg2km, self.maxlag*deg2km)
            plt.show()
         
         # saving the length scale
