@@ -8,7 +8,7 @@ with open('README.md') as f:
     readme = f.read()
 
 setup(name='STREET',
-      version='0.0.2',
+      version='0.0.3',
       description='SpaTial Representation Error EstimaTor',
       long_description=readme,
       long_description_content_type='text/markdown',
